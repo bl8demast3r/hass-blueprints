@@ -5,7 +5,7 @@ blueprint:
     \n\n
     <https://www.zigbee2mqtt.io/devices/ZMR4_1.html>
     \n\n
-    Uses event entities that are leaving experimental stage in Z2M 2.0
+    Updated to support both classic Z2M action sensors and newer event entities.
     "  
   domain: automation
   input:
@@ -16,7 +16,6 @@ blueprint:
         entity:
           filter:
             - integration: mqtt
-              domain: event
           multiple: false
     button_1_short_press:
       name: Single Press - Button 1
@@ -90,8 +89,6 @@ blueprint:
       default: []
       selector:
         action: {}
-  # originally from https://community.home-assistant.io/t/zigbee2mqtt-z2m-samsung-smartthings-button/419722
-  # copied from https://gist.github.com/idcrook/a5406ea0bb911435603958351858f466
 max_exceeded: silent
 triggers:
   - trigger: state
@@ -100,9 +97,13 @@ triggers:
     to: ~
 action:
   - variables:
-      button: "{{ trigger.to_state.attributes.button}}"
-      # 1_single, 1_double, 1_hold, 2_single, 2_double, 2_hold, 3_single, 3_double, 3_hold, 4_single, 4_double, 4_hold
-      event_type: "{{ trigger.to_state.attributes.event_type }}"
+      # This logic now handles both the newer 'event' domain and the classic 'sensor' domain
+      event_type: >-
+        {% if trigger.to_state.domain == 'event' %}
+          {{ trigger.to_state.attributes.event_type }}
+        {% else %}
+          {{ trigger.to_state.state }}
+        {% endif %}
   - choose:
       - conditions:
           - "{{ event_type == '1_single' }}"
