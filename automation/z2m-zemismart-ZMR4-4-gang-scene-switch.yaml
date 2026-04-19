@@ -1,16 +1,16 @@
 blueprint:
-  name: Zigbee2MQTT Zemismart ZMR-4 4-gang Scene Switch
+  name: Zigbee2MQTT Zemismart ZMR4_1 4-gang Scene Switch
   description:  
-    "Tested with ZMR4 model. Has four buttons. each of which have press events of `single`, `double`, and `hold`.
+    "Tested with ZMR4_1 model. Has four buttons, each of which have press events of `single`, `double`, and `hold`.
     \n\n
-    <https://www.zigbee2mqtt.io/devices/ZMR4.html> linked interchangeably with <https://www.zigbee2mqtt.io/devices/TS0044.html#tuya-ts0044>
+    <https://www.zigbee2mqtt.io/devices/ZMR4_1.html>
     \n\n
     Uses event entities that are leaving experimental stage in Z2M 2.0
     "  
   domain: automation
   input:
-    zemismart_zmr4:
-      name: Zemismart ZMR-4 Scene Switch
+    zemismart_zmr4_1:
+      name: Zemismart ZMR4_1 Scene Switch
       description: The Zigbee button to use
       selector:
         entity:
@@ -92,18 +92,16 @@ blueprint:
         action: {}
   # originally from https://community.home-assistant.io/t/zigbee2mqtt-z2m-samsung-smartthings-button/419722
   # copied from https://gist.github.com/idcrook/a5406ea0bb911435603958351858f466
-  source_url: https://raw.githubusercontent.com/idcrook/hass-blueprints/refs/heads/main/automation/z2m-zemismart-ZMR4-4-gang-scene-switch.yaml
 max_exceeded: silent
 triggers:
   - trigger: state
-    entity_id: !input zemismart_zmr4
+    entity_id: !input zemismart_zmr4_1
     not_from: unavailable
     to: ~
 action:
   - variables:
       button: "{{ trigger.to_state.attributes.button}}"
-      # FIXME: these seem inaccurate. should be 'hold'/long press for each button as well!
-      # 1_single, 1_double, hold, 2_single, 2_double, 3_single, 3_double, 4_single, 4_double
+      # 1_single, 1_double, 1_hold, 2_single, 2_double, 2_hold, 3_single, 3_double, 3_hold, 4_single, 4_double, 4_hold
       event_type: "{{ trigger.to_state.attributes.event_type }}"
   - choose:
       - conditions:
@@ -141,5 +139,4 @@ action:
         sequence: !input button_4_double_press
       - conditions:
           - "{{ event_type == '4_hold' }}"
-        sequence: !input button_4_hold        
-
+        sequence: !input button_4_hold
